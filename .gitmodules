@@ -1,0 +1,3 @@
+[submodule "lib/game-backend"]
+	path = lib/game-backend
+	url = https://github.com/andy-hanson/game-backend

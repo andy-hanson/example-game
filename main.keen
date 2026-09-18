@@ -1,0 +1,75 @@
+import
+	game-backend/abstract-backend
+	game-backend/abstract-game
+	game-backend/audio
+	game-backend/backend
+	game-backend/graphics
+	game-backend/input
+	keen/io/duration
+	keen/math/geom2d/aa-rect
+	keen/math/geom2d/size2
+	keen/math/vec
+
+main void() global
+	args backend-args = music: true, desired-framerate: 60
+	game my-game = ()
+	backend-main args, game
+
+my-game record mut, abstract-game case
+	begun mut bool
+	pos mut vec2-32
+new my-game()
+	begun: false
+	pos: ()
+
+title string(_ my-game)
+	"My game"
+
+all-fonts string[](_ my-game)
+	()
+all-images image-info[](_ my-game)
+	-
+		path: "smiley.png"
+		size: 16, 16
+smiley image-and-region() = 0, (left: 0, right: 16, top: 0, bottom: 16)
+
+all-musics string[](_ my-game)
+	- "music.ogg"
+
+all-sounds string[](_ my-game)
+	- "step.wav"
+step nat() = 0
+
+step step-result(game my-game, input step-input)
+	move vec2-32 =  if input.trigger
+		match input.trigger
+		as button
+			match input.trigger
+			as left then left
+			as right then right
+			as down then down
+			as up then up
+			else then ()
+		as string
+			log "Got debug command", input.trigger
+			()
+
+	if move != ()
+		game.pos +:= move
+
+	save: ()
+	music: if move != () and not game.begun
+		game.begun := true
+		:: play-music
+		music-id: 0
+		volume: 0.5
+		fade-out: ()
+		delay: ()
+		fade-in: ()
+	sounds: if move != ()
+		- sound-id: step
+
+draw drawable(game my-game, screen size2-32, _ duration, _ measurements)
+	world aa-rect32 = center: (0, 0), size: (64 * screen.width / screen.height, 64)
+	change-coordinates world,
+		- draw-image (center: game.pos, size: (16, 16)), smiley
